@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	avatar = "/data/hehanyang/mytest/my_pyq/backend/chores/avatar.jpg"
-	cover  = "/data/hehanyang/mytest/my_pyq/backend/chores/cover2.jpg"
+	avatar = "avatar.jpg"
+	cover  = "cover2.jpg"
 )
 
 type GetMemosResp struct {
@@ -53,10 +53,10 @@ func main() {
 
 	log.Infof("hehe")
 
-	os.Chdir("/data/hehanyang/mytest/my_pyq/backend/chores/")
+	os.Chdir("chores")
 
 	wd, _ := os.Getwd()
-	_ = wd
+	log.Printf(">>>>>>>>>>>>>>>>>>>>>>>>>>> wd:%v", wd)
 
 	g := gin.Default()
 
@@ -84,10 +84,12 @@ func main() {
 
 		log.Infof("get file:%v", filePath)
 
+		//if !utils.HasFile(filePath) {
+		//	reqresp.MakeErrMsg(c, fmt.Errorf("file not found:%v", filePath))
+		//	return
+		//}
+
 		c.File(filePath)
-
-		return
-
 	})
 
 	g.GET("/backend/v1/memos", func(c *gin.Context) {
@@ -95,6 +97,7 @@ func main() {
 
 		m1 := &Memo{
 			User: User{
+				NickName:  "英孚在线教育",
 				AvatarUrl: "r1/avatar.jpg",
 			},
 			Content:  "为何会有如此说法呢？首先不得不承认，数学对于思维能力的确有着颇高的要求，正因如此，很多家长都觉得学习数学很大程度地依赖于天赋和智商。",
@@ -121,6 +124,7 @@ func main() {
 
 		m2 := &Memo{
 			User: User{
+				NickName:  "阿布003",
 				AvatarUrl: "r2/avatar.jpg",
 			},
 			Content:  "深圳能见度太高了，天儿特别好看",
@@ -197,7 +201,7 @@ func main() {
 		reqresp.MakeResp(c, resp)
 	})
 
-	g.Run(":8090")
+	g.Run("0.0.0.0:8090")
 
 }
 

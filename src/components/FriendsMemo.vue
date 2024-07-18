@@ -20,21 +20,23 @@
 
       <div v-if="memo.images.length">
         <div class="grid my-1 gap-0.5" :style="getImgGridStyle(memo)" :options="{ Carousel: { infinite: false } }">
-          <img loading="lazy" :src="getFile(img)" class="cursor-zoom-in"
+          <img @click="showImgPreview=true" loading="lazy" :src="getFile(img)" class="cursor-zoom-in"
                :class="memo.images.length === 1 ? 'full-cover-image-single' : 'full-cover-image-mult'"
                v-for="(img, index) in memo.images" :key="index" />
         </div>
       </div>
 
-      <div style="overflow: hidden;" class="toolbar relative flex flex-row justify-between select-none my-3 items-center">
+        <van-image-preview v-model:show="showImgPreview" :images="getImgs(memo.images)">
+        </van-image-preview>
+
+      <div style="" class="toolbar relative flex flex-row justify-between select-none my-3 items-center">
 
         <div class="flex-1 text-gray text-xs text-[#9DA4B0] " >{{
             memo.show_time
           }}</div>
 
         <!--三个点-->
-        <div style="z-index:2; background-color: #191b1f;height:40px;width:30px;position:absolute;right:0px;">
-
+        <div style="right: -8px; padding-right: 8px; z-index:2; background-color: #191b1f;height:40px;width:40px;position:absolute;">
         </div>
         <div @click="showToolbar = !showToolbar"
              style="z-index:3;background-color: rgb(44 44 44)" class="toolbar-icon px-2 py-1 bg-[#f7f7f7] dark:bg-slate-700 hover:bg-[#dedede] cursor-pointer rounded flex items-center justify-center">
@@ -42,7 +44,7 @@
         </div>
 
         <!--弹出:赞或评论-->
-        <Transition  name="toolbarmove2">
+        <Transition  name="toolbarmove">
         <div style="z-index:1;" class="absolute top-[-8px] right-[32px] bg-[#4c4c4c] rounded text-white p-2 px-4" v-if="showToolbar"
              ref="toolbarRef">
 
@@ -57,34 +59,46 @@
             <div class="flex flex-row gap-0.5 cursor-pointer items-center"
                  @click="momentsShowCommentInput = !momentsShowCommentInput; showUserCommentArray = []; showToolbar = false">
               <MessageSquare :size=14 />
-              <div style="min-width:10px;white-space: nowrap;margin-right: 5px;">评论</div>
+              <div @click="showInput=true" style="min-width:10px;white-space: nowrap;margin-right: 5px;">评论</div>
             </div>
           </div>
 
         </div>
         </Transition>
 
-
       </div>
 
+
+
     </div>
     </div>
+
+    <div v-if="showInput" id="memo_input" style="display: flex;">
+      <van-field autofocus autocomplete="off" style="width:70%" v-model="inputContent" />
+      <Laugh style="color:#f0f0f0;margin-left:10px;margin-right:10px;" :size=30 />
+      <van-button  @click="onClickSend" style="font-size:15px;width:20%;margin-right: 10px">发送</van-button>
+    </div>
+
   </div>
 </template>
 <script>
-import {Heart, HeartCrack, MessageSquare} from "lucide-vue-next";
+import {Heart, HeartCrack, MessageSquare, Laugh} from "lucide-vue-next";
 export default {
   name: 'FriendsMemo',
   components:{
     Heart,
     HeartCrack,
     MessageSquare,
+    Laugh,
   },
   props: {
     memo: Object,
   },
   data() {
     return {
+      inputContent: '',
+      showInput: false,
+      showImgPreview: false,
       showToolbar: false,
       momentsShowCommentInput: false,
       showUserCommentArray: [],
@@ -98,12 +112,21 @@ export default {
   },
   methods: {
 
-    getToolbarStyle() {
+    onClickSend() {
+      this.showInput = false
+      memo.
+    },
 
+    getImgs: function(rawImgs) {
+      var resp = []
+      rawImgs.forEach(v=>{
+        resp.push(this.getFile(v))
+      })
+      return resp
     },
 
     getFile: function(input){
-      return "http://192.168.50.47:8090/backend/v1/file?id=" + input;
+      return "http://192.168.50.250:8090/backend/v1/file?id=" + input;
     },
 
     getImgGridStyle: function(memo){
@@ -121,6 +144,7 @@ export default {
             break;
           case 4:
             style += 'grid-template-columns: 1fr 1fr; aspect-ratio: 1;';
+            style += "width: 65%;"
             break;
           default:
             style += 'grid-template-columns: 1fr 1fr 1fr; aspect-ratio: 3 / 1;';
@@ -160,65 +184,25 @@ export default {
   border: transparent 1px solid;
 }
 
-
-/* 定义动画 */
 @keyframes slideFadeIn {
   0% {
-    max-height: 36px;
-    width: 0%;
-  }
-  100% {
-    max-height: 36px;
-    width: 150px; /* 假设最大高度是100px */
-  }
-}
-
-@keyframes slideFadeIn2 {
-  0% {
     transform: translateX(100%);
-    opacity: 0;
   }
   100% {
     transform: translateX(0);
-    opacity: 100%;
-
-  }
-}
-
-@keyframes slideFadeOut2 {
-  0% {
-    transform: translateX(0%);
-    opacity: 100%;
-
-  }
-  10% {
-    transform: translateX(0%);
-    opacity: 100%;
-  }
-  100% {
-    transform: translateX(100%);
-    opacity: 0%;
-
   }
 }
 
 @keyframes slideFadeOut {
   0% {
-    max-height: 36px;
+    transform: translateX(0%);
   }
   100% {
-    max-height: 36px;
-    width: 0; /* 假设最大高度是100px */
+    transform: translateX(100%);
   }
 }
 
-/* 应用动画 */
-.popup {
-  animation-name: slideFadeIn;
-  animation-duration: 0.5s; /* 动画持续时间 */
-  animation-fill-mode: forwards; /* 动画结束后保持最后一帧的样式 */
-  overflow: hidden; /* 隐藏超出容器的内容 */
-}
+
 
 
 p, span {
@@ -226,55 +210,33 @@ p, span {
 }
 
 
-
-.toolbarmove2-enter-active {
-  animation-name: slideFadeIn2;
-  animation-duration: 0.5s; /* 动画持续时间 */
-  animation-fill-mode: forwards; /* 动画结束后保持最后一帧的样式 */
-  overflow: hidden; /* 隐藏超出容器的内容 */
-}
-
-.toolbarmove2-leave-active {
-  animation-name: slideFadeOut2;
-  animation-duration: 0.5s; /* 动画持续时间 */
-  animation-fill-mode: forwards; /* 动画结束后保持最后一帧的样式 */
-  overflow: hidden; /* 隐藏超出容器的内容 */
-}
-
-.toolbarmove-enter {
-  width: 0;
-}
-
 .toolbarmove-enter-active {
   animation-name: slideFadeIn;
   animation-duration: 0.3s; /* 动画持续时间 */
-  animation-fill-mode: forwards; /* 动画结束后保持最后一帧的样式 */
-  overflow: hidden; /* 隐藏超出容器的内容 */
-}
-
-.toolbarmove-enter-to {
-  width: 150px
-}
-
-.toolbarmove-leave {
-
 }
 
 .toolbarmove-leave-active {
   animation-name: slideFadeOut;
   animation-duration: 0.3s; /* 动画持续时间 */
-  animation-fill-mode: forwards; /* 动画结束后保持最后一帧的样式 */
-  overflow: hidden; /* 隐藏超出容器的内容 */
 }
 
-.toolbarmove-leave-to {
-
+.van-image-preview__index{
+  display:none;
 }
 
+:root {
+  --van-white: black;
+  --van-button-default-background: red;
+}
 
+.van-button--default {
+  background-color: #05c160 !important;
+  border: none !important;
+  height: 35px !important;
+}
 
-
-
-
+input2 {
+  caret-color: transparent;
+}
 
 </style>

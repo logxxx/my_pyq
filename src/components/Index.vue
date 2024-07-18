@@ -1,6 +1,7 @@
 <template>
-  <div class="wrapper w-full h-full bg-[#f1f5f9] dark:bg-slate-800 rounded-md dark:text-[#C0BEBF]">
-    <div class="h-full" type="hover">
+  <van-config-provider theme="dark"></van-config-provider>
+  <div id="main_page" style="overflow:hidden;" class="w-full h-full bg-[#f1f5f9] dark:bg-slate-800 rounded-md dark:text-[#C0BEBF]">
+    <div class="h-full">
       <div class="main lg:w-[567px] mx-auto shadow-2xl bg-[#181818]">
         <!--HeaderImg start -->
         <div class="header relative mb-8 ">
@@ -56,18 +57,18 @@ export default {
   methods: {
 
     getProfile: function() {
-      axios.get('http://192.168.50.47:8090/backend/v1/profile').then(resp => {
+      axios.get('http://192.168.50.250:8090/backend/v1/profile').then(resp => {
         this.profile = resp.data
         console.log("getProfile resp:", this.profile)
       })
     },
 
     getImgUrl: function(input){
-      return "http://192.168.50.47:8090/backend/v1/file?id=" + input;
+      return "http://192.168.50.250:8090/backend/v1/file?id=" + input;
     },
 
     getMemos: function() {
-      axios.get('http://192.168.50.47:8090/backend/v1/memos').then(resp => {
+      axios.get('http://192.168.50.250:8090/backend/v1/memos').then(resp => {
         resp.data.memos.forEach(v=>{
           this.memos.push(v)
         })
@@ -83,5 +84,13 @@ export default {
 </script>
 
 <style>
+#main_page {
+  overflow-y: scroll;
+  scrollbar-width: none;
+}
+
+#main_page::-webkit-scrollbar {
+  display: none; /* 对于 Chrome, Safari 和 Opera 的写法 */
+}
 
 </style>
