@@ -25,14 +25,15 @@ type Profile struct {
 }
 
 type Memo struct {
-	ID       int64     `json:"id"`
+	ID       int       `json:"id"`
 	User     User      `json:"user"`
 	Content  string    `json:"content"`
+	Place    string    `json:"place"`
 	Images   []string  `json:"images,omitempty"`
 	Video    string    `json:"video,omitempty"`
 	ShowTime string    `json:"show_time,omitempty"`
 	Comments []Comment `json:"comments,omitempty"`
-	Likes    []string  `json:"likes,omitempty"`
+	Likes    []string  `json:"likes"`
 }
 
 type User struct {
@@ -104,6 +105,7 @@ func main() {
 			Images:   []string{"r1/1.jpg", "r1/2.jpg", "r1/3.jpg", "r1/4.jpg"},
 			Video:    "",
 			ShowTime: "昨天",
+			Place:    "长沙市·芒果TV(总部)",
 			Comments: []Comment{
 				{
 					UserName: "桐宝and胖桓",
@@ -118,7 +120,7 @@ func main() {
 					Content:  "转发微博",
 				},
 			},
-			Likes: nil,
+			Likes: []string{"张三", "里斯", "王二", "码字"},
 		}
 		resp.Memos = append(resp.Memos, m1)
 
@@ -145,59 +147,103 @@ func main() {
 					Content:  "快来快来",
 				},
 			},
-			Likes: nil,
+			Likes: []string{"张三", "里斯", "王二", "码字"},
 		}
 		resp.Memos = append(resp.Memos, m2)
 
-		for _, m := range resp.Memos {
+		m3 := &Memo{
+			User: User{
+				NickName:  "木木木木啊",
+				AvatarUrl: "r3/avatar.jpg",
+			},
+			Content: "#原相机 #纯欲 #御姐",
+			//Images:   []string{"r2/1.jpg", "r2/2.jpg", "r2/3.jpg", "r2/4.jpg"},
+			Video:    "r3/1.mp4",
+			ShowTime: "3小时前",
+			Comments: []Comment{
+				{
+					UserName: "一起散步吗Q",
+					Content:  "快回重庆玩！",
+				},
+				{
+					UserName: "万万又漫漫",
+					Content:  "真心换真心[泪]真的好幸福",
+				},
+				{
+					UserName: "_钙铁欣",
+					Content:  "快来快来",
+				},
+			},
+			Likes: []string{"张三", "里斯", "王二", "码字"},
+		}
+		resp.Memos = append(resp.Memos, m3)
+
+		m4 := &Memo{
+			User: User{
+				NickName:  "梳子在发光",
+				AvatarUrl: "r4/avatar.jpg",
+			},
+			Content: "据说摄影师这组视频点赞过万了",
+			//Images:   []string{"r2/1.jpg", "r2/2.jpg", "r2/3.jpg", "r2/4.jpg"},
+			Video:    "r4/1.mp4",
+			ShowTime: "一个月前",
+			Comments: []Comment{
+				{
+					UserName: "kenijiba",
+					Content:  "我的白月光",
+				},
+				{
+					UserName: "大苹果",
+					Content:  "我在突厥斯坦",
+				},
+				{
+					UserName: "Danny",
+					Content:  "拍出了艺术气息~",
+				},
+			},
+			Likes: nil,
+		}
+		resp.Memos = append(resp.Memos, m4)
+
+		m5 := &Memo{
+			User: User{
+				NickName:  "种草安利鹅",
+				AvatarUrl: "r5/avatar.jpg",
+			},
+			Content:  "雨后初晴，深圳双彩虹！收录了几张朋友们发到群里的照片，真的太美啦！",
+			Images:   []string{"r5/1.jpg"},
+			Video:    "",
+			ShowTime: "5天前",
+			Comments: []Comment{
+				{
+					UserName: "卷只小贝奶酪",
+					Content:  "这小众的赛道居然还是被人发现并且进去了",
+				},
+				{
+					UserName: "就养一只洋",
+					Content:  "越到后面直接就更加疯批了",
+				},
+				{
+					UserName: "抱着胖杉碎大觉",
+					Content:  "没见过这么惨的，苏容华只是个纯爱战神罢了~",
+				},
+			},
+			//Likes: []string{"h宋书颻_yx", "柳柳shiny", "意钟人VIN", "要做快乐的草莓熊", "德云社王筱阁", "拾拾拾拾拾年", "吃了这块皂", "再熬夜我就明天早点睡", "蝶熙YoYo", "强牌慢打故作姿态", "甜杏丷"},
+			Likes: []string{"h宋书颻_yx"},
+		}
+
+		resp.Memos = append(resp.Memos, m5)
+
+		for i, m := range resp.Memos {
+			m.ID = i + 1
 			m.User.AvatarUrl = utils.B64(m.User.AvatarUrl)
 			for i := range m.Images {
 				m.Images[i] = utils.B64(m.Images[i])
 			}
+			if m.Video != "" {
+				m.Video = utils.B64(m.Video)
+			}
 		}
-
-		/*
-			resp.Memos = append(resp.Memos, Memo{
-				ID: 1,
-				User: User{
-					ID:        11,
-					AvatarUrl: utils.B64(avatar),
-					NickName:  "杨蕊",
-				},
-				Content:  "洗了还是人了",
-				Images:   []string{utils.B64("/data/hehanyang/mytest/moments/backend/chores/5.jpg"), utils.B64("/data/hehanyang/mytest/moments/backend/chores/6.jpg")},
-				Video:    "",
-				ShowTime: "昨天",
-				Comments: []Comment{
-					{MemoID: 222, ID: 233, UserName: "D.", ReplyTo: "", Content: "好多水啊"},
-					{MemoID: 222, ID: 234, UserName: "惘", ReplyTo: "", Content: "给粉丝抽了"},
-					{MemoID: 222, ID: 235, UserName: "珍惜缘分", ReplyTo: "", Content: "塞我嘴里 别洗也别扔"},
-					{MemoID: 222, ID: 236, UserName: ".7", ReplyTo: "", Content: "我一个朋友说要当球衣收藏"},
-				},
-				Likes: []string{"惘", "珍惜缘分", "光", "四百", "Xu01", "呆子", "昵称个行将", "A 赦", "Z."},
-			})
-
-			resp.Memos = append(resp.Memos, Memo{
-				ID: 2,
-				User: User{
-					ID:        11,
-					AvatarUrl: utils.B64("/data/hehanyang/mytest/moments/backend/chores/avatar.jpg"),
-					NickName:  "杨蕊",
-				},
-				Content:  "我真的好孕",
-				Images:   []string{utils.B64("/data/hehanyang/mytest/moments/backend/chores/7.jpg"), utils.B64("/data/hehanyang/mytest/moments/backend/chores/8.jpg")},
-				Video:    "",
-				ShowTime: "昨天",
-				Comments: []Comment{
-					{MemoID: 222, ID: 233, UserName: "张三", ReplyTo: "", Content: "笑死"},
-					{MemoID: 222, ID: 234, UserName: "李四", ReplyTo: "", Content: "抽象"},
-					{MemoID: 222, ID: 235, UserName: "王二", ReplyTo: "", Content: "你是真的6"},
-					{MemoID: 222, ID: 236, UserName: "麻子", ReplyTo: "", Content: "你好无聊啊"},
-				},
-				Likes: []string{"小猫", "大熊", "还带", "还珠格格", "皇阿玛"},
-			})
-
-		*/
 		reqresp.MakeResp(c, resp)
 	})
 

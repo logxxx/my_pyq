@@ -25,7 +25,7 @@
         <div class="mt-12">
 
         <div class="content flex flex-col divide-y divide-[#C0BEBF]/10">
-          <FriendsMemo :memo="memo" v-for="(memo, index) in memos" :index="index" :key="memo.id" :show-more="true"/>
+          <FriendsMemo :profile="profile" :memo="memo" v-for="(memo, index) in memos" :index="index" :key="memo.id" :show-more="true"/>
         </div>
 
       </div>
@@ -57,18 +57,18 @@ export default {
   methods: {
 
     getProfile: function() {
-      axios.get('http://192.168.50.250:8090/backend/v1/profile').then(resp => {
+      axios.get('http://192.168.50.47:8090/backend/v1/profile').then(resp => {
         this.profile = resp.data
         console.log("getProfile resp:", this.profile)
       })
     },
 
     getImgUrl: function(input){
-      return "http://192.168.50.250:8090/backend/v1/file?id=" + input;
+      return "http://192.168.50.47:8090/backend/v1/file?id=" + input;
     },
 
     getMemos: function() {
-      axios.get('http://192.168.50.250:8090/backend/v1/memos').then(resp => {
+      axios.get('http://192.168.50.47:8090/backend/v1/memos').then(resp => {
         resp.data.memos.forEach(v=>{
           this.memos.push(v)
         })
