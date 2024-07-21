@@ -74,11 +74,12 @@
       </div>
 
         <div v-if="memo.likes" style="display: flex;margin-left: 10px;;margin-bottom:10px;">
-          <Heart size=17 style="color:#7e90a8"/><div style="color: #7e90a8;font-size: 1.1rem; margin-left: 5px;">{{(memo.likes?memo.likes:[]).join('，')}}</div>
+          <Heart size=17 style="position:absolute;color:#7e90a8"/><div style="color: #7e90a8;font-size: 1.1rem; margin-left: 5px;">&nbsp;&nbsp;&nbsp;{{(memo.likes?memo.likes:[]).join('，')}}</div>
         </div>
 
         <div style="color: rgb(192,190,191); margin-left: 10px;margin-right: 10px; margin-bottom: 5px;" v-for="(comment, idx) in memo.comments">
-          <span style="color: #7e90a8;font-size: 1.1rem">{{comment.username}}</span>:<span style="color: rgb(192,190,191);margin-left: 5px; margin-right: 15px;font-size: 1.1rem">{{comment.content}}</span>
+          <div v-if="comment.reply_to"><span style="color: #7e90a8;font-size: 1.1rem">{{comment.username}}</span><span style="color: rgb(192,190,191);margin-left: 5px; margin-right:5px;font-size: 1.1rem">回复</span><span style="color: #7e90a8;font-size: 1.1rem">{{comment.reply_to}}</span>:<span style="color: rgb(192,190,191);margin-left: 5px; margin-right: 15px;font-size: 1.1rem">{{comment.content}}</span></div>
+          <div v-else><span style="color: #7e90a8;font-size: 1.1rem">{{comment.username}}</span>:<span style="color: rgb(192,190,191);margin-left: 5px; margin-right: 15px;font-size: 1.1rem">{{comment.content}}</span></div>
         </div>
 
 

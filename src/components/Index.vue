@@ -6,7 +6,7 @@
         <!--HeaderImg start -->
         <div class="header relative mb-8 ">
 
-          <img class="header-img w-full h-auto" :src="getImgUrl(profile.cover)" alt="" />
+          <img style="max-height:300px;object-fit: cover" class="header-img w-full" :src="getImgUrl(profile.cover)" alt="" />
 
           <div class="absolute right-4 bottom-[-40px]">
             <div class="userinfo flex flex-col">
