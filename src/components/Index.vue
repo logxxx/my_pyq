@@ -1,8 +1,8 @@
 <template>
   <van-config-provider theme="dark"></van-config-provider>
-  <div id="main_page" style="overflow:hidden;" class="w-full h-full bg-[#f1f5f9] dark:bg-slate-800 rounded-md dark:text-[#C0BEBF]">
-    <div class="h-full">
-      <div class="main lg:w-[567px] mx-auto shadow-2xl bg-[#181818]">
+  <div id="main_page" class="w-full h-full bg-[#f1f5f9] dark:bg-slate-800 rounded-md dark:text-[#C0BEBF]">
+<!--    <div class="h-full">-->
+      <div class="lg:w-[567px] mx-auto shadow-2xl bg-[#181818]" style="overflow:hidden;">
         <!--HeaderImg start -->
         <div class="header relative mb-8 ">
 
@@ -30,7 +30,7 @@
 
       </div>
       </div>
-    </div>
+<!--    </div>-->
   </div>
 </template>
 
@@ -84,13 +84,6 @@ export default {
 </script>
 
 <style>
-#main_page {
-  overflow-y: scroll;
-  scrollbar-width: none;
-}
 
-#main_page::-webkit-scrollbar {
-  display: none; /* 对于 Chrome, Safari 和 Opera 的写法 */
-}
 
 </style>

@@ -5,14 +5,14 @@
 
       <img :src="getFile(memo.user.avatarUrl)" class="avatar w-10 h-10 rounded "/>
 
-      <div>
+      <div style="width:100%">
 
         <div class="flex flex-col gap-.5 flex-1">
           <div class="">
             <div style="font-size: 1.2rem; margin-top: -5px; color: #7e90a8" class="username text-lg dark:text-white cursor-pointer">
               {{memo.user.nickname }}
             </div>
-            <div style="font-size: 1.2rem" class="memo-content text-lg friend-md mome-container text-wrap break-all" ref="el" v-if="memo.content">{{memo.content}}</div>
+            <div style="white-space: pre-line;font-size: 1.2rem" class="memo-content text-lg friend-md mome-container text-wrap break-all" ref="el" v-if="memo.content">{{memo.content}}</div>
         </div>
       </div>
 
@@ -32,7 +32,7 @@
       </div>
 
 
-      <div style="color: #7e90a8;font-size: 1.1rem">{{memo.place}}</div>
+      <div style="color: #7e90a8;font-size: 1.1rem;margin-top:10px;">{{memo.place}}</div>
 
       <div style="" class="toolbar relative flex flex-row justify-between select-none my-3 items-center">
 
@@ -73,23 +73,41 @@
 
       </div>
 
-        <div v-if="memo.likes" style="display: flex;margin-left: 10px;;margin-bottom:10px;">
-          <Heart size=17 style="position:absolute;color:#7e90a8"/><div style="color: #7e90a8;font-size: 1.1rem; margin-left: 5px;">&nbsp;&nbsp;&nbsp;{{(memo.likes?memo.likes:[]).join('，')}}</div>
+        <div v-if="memo.likes" style="background-color: #202020;padding:8px;border-radius:5px;">
+          <div  style="position: relative;display: flex;">
+            <Heart size=17 style="position: absolute;color:#7e90a8"/><div style="color: #7e90a8;font-size: 1.1rem; ">&nbsp;&nbsp;&nbsp;&nbsp;{{(memo.likes?memo.likes:[]).join('，')}}</div>
+          </div>
+
+          <!--一条很细的线-->
+          <div v-if="memo.comments" style="border-top: 0.1px solid #373737;width:100%;margin-top: 6px;margin-bottom:6px;"></div>
+
+          <div style="font-size: 1.1rem;color: rgb(192,190,191);  margin-top: 8px;" v-for="(comment, idx) in memo.comments">
+            <div v-if="comment.reply_to"><span style="color: #7e90a8;">{{comment.username}}</span><span style="color: rgb(192,190,191);margin-left: 5px; margin-right:5px;">回复</span><span style="color: #7e90a8;">{{comment.reply_to}}</span>:<span style="color: rgb(192,190,191);margin-left: 5px; margin-right: 15px;font-size: 1.1rem">{{comment.content}}</span></div>
+            <div v-else><span style="color: #7e90a8;">{{comment.username}}</span>:<span style="color: rgb(192,190,191);margin-left: 5px; margin-right: 5px;">{{comment.content}}</span></div>
+          </div>
+
         </div>
 
-        <div style="color: rgb(192,190,191); margin-left: 10px;margin-right: 10px; margin-bottom: 5px;" v-for="(comment, idx) in memo.comments">
-          <div v-if="comment.reply_to"><span style="color: #7e90a8;font-size: 1.1rem">{{comment.username}}</span><span style="color: rgb(192,190,191);margin-left: 5px; margin-right:5px;font-size: 1.1rem">回复</span><span style="color: #7e90a8;font-size: 1.1rem">{{comment.reply_to}}</span>:<span style="color: rgb(192,190,191);margin-left: 5px; margin-right: 15px;font-size: 1.1rem">{{comment.content}}</span></div>
-          <div v-else><span style="color: #7e90a8;font-size: 1.1rem">{{comment.username}}</span>:<span style="color: rgb(192,190,191);margin-left: 5px; margin-right: 15px;font-size: 1.1rem">{{comment.content}}</span></div>
-        </div>
+
 
 
     </div>
     </div>
 
+    <!--
     <div v-if="showInput"  style="display: flex;">
       <van-field :id="memo.id" autocomplete="off" style="width:70%" v-model="inputContent" />
       <Laugh style="color:#f0f0f0;margin-left:10px;margin-right:10px;" :size=30 />
       <van-button  @click="onClickSend" style="font-size:15px;width:20%;margin-right: 10px">发送</van-button>
+    </div>
+    -->
+
+    <div v-if="showInput"  style="width:100%;background-color: #191b1f;position: fixed;top:89%;z-index: 999;padding:5px;">
+      <div style="display: flex;">
+      <van-field :id="memo.id" autocomplete="off" style="width:70%" v-model="inputContent" />
+      <Laugh style="color:#f0f0f0;margin-left:10px;margin-right:10px;" :size=30 />
+      <van-button  @click="onClickSend" style="font-size:15px;width:20%;margin-right: 10px">发送</van-button>
+        </div>
     </div>
 
   </div>
@@ -190,6 +208,9 @@ export default {
     onClickSend() {
       console.log("get profile:", this.profile)
       this.showInput = false
+      if(!this.memo.comments) {
+        this.memo.comments=[]
+      }
       this.memo.comments.push({username:this.profile.nickname, content: this.inputContent})
       this.inputContent = ''
     },
@@ -237,10 +258,6 @@ export default {
 </script>
 
 <style>
-
-.memo {
-
-}
 
 .memo-content {
   color: rgb(192,190,191)

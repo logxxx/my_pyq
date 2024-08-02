@@ -4,6 +4,7 @@ import (
 	"github.com/logxxx/utils"
 	"github.com/logxxx/utils/fileutil"
 	"strings"
+	"time"
 )
 
 var (
@@ -12,11 +13,24 @@ var (
 )
 
 func init() {
-	fileutil.ReadYamlFile("/home/xunlei/sync/chore/memos.yml", memosTmpl)
+	err := fileutil.ReadYamlFile("/home/xunlei/sync/chore/memos.yml", memosTmpl)
+	if err != nil {
+		panic(err)
+	}
 
 	if len(memosTmpl.Data) <= 0 {
 		panic("no memosTmpl")
 	}
+
+	go func() {
+		for {
+			time.Sleep(3 * time.Second)
+			fileutil.ReadYamlFile("/home/xunlei/sync/chore/memos.yml", memosTmpl)
+			if len(memosTmpl.Data) <= 0 {
+				panic("no memosTmpl")
+			}
+		}
+	}()
 
 	fileutil.ReadYamlFile("/home/xunlei/sync/chore/profile.yml", profile)
 
