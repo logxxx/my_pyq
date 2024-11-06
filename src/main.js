@@ -7,6 +7,8 @@ import { Field } from 'vant';
 import { ConfigProvider } from 'vant';
 import { Button } from 'vant';
 import 'vant/lib/index.css';
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
 
-createApp(App).use(router).use(ImagePreview).use(Field).use(Button).use(ConfigProvider).mount('#app')
+createApp(App).use(ElementPlus).use(router).use(ImagePreview).use(Field).use(Button).use(ConfigProvider).mount('#app')
 //createApp(App).use(router).use(ImagePreview).mount('#app')

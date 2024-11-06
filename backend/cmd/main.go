@@ -2,12 +2,19 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/logxxx/utils"
+	"github.com/logxxx/utils/fileutil"
 	"github.com/logxxx/utils/reqresp"
 	log "github.com/sirupsen/logrus"
+	"math/rand"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
+	"time"
 )
 
 var (
@@ -15,40 +22,85 @@ var (
 	cover  = "cover2.jpg"
 )
 
-type GetMemosResp struct {
-	Memos []Memo `json:"memos"`
+func getRandomUsers(count int) (resp []string, err error) {
+	if !utils.HasFile("chores/users.txt") {
+		err = errors.New("users.txt not found")
+		return
+	}
+
+	all := []string{}
+	fileutil.ReadByLine("chores/users.txt", func(s string) (e error) {
+
+		if s == "" {
+			return
+		}
+
+		resp := s
+
+		elems := strings.Split(s, "_")
+		if len(elems) >= 2 {
+			resp = strings.Join(elems[1:], "")
+		}
+
+		all = append(all, resp)
+
+		return
+	})
+	rand.Shuffle(len(all), func(i, j int) {
+		all[i], all[j] = all[j], all[i]
+	})
+	if count >= len(all) {
+		count = len(all) - 1
+	}
+	if count <= 0 {
+		count = rand.Intn(len(all) - 1)
+	}
+	count = rand.Intn(count) + 1
+	resp = all[:count]
+
+	return
 }
 
-type Profile struct {
-	AvatarUrl string `json:"avatarUrl,omitempty"`
-	NickName  string `json:"nickname,omitempty"`
-	Cover     string `json:"cover,omitempty"`
+func getAllReply() []string {
+	all := []string{}
+	fileutil.ReadByLine("chores/reply.txt", func(s string) (e error) {
+
+		if s == "" {
+			return
+		}
+
+		all = append(all, s)
+
+		return
+	})
+
+	rand.Shuffle(len(all), func(i, j int) {
+		all[i], all[j] = all[j], all[i]
+	})
+
+	return all
 }
 
-type Memo struct {
-	ID       int       `json:"id"`
-	User     User      `json:"user"`
-	Content  string    `json:"content"`
-	Place    string    `json:"place"`
-	Images   []string  `json:"images,omitempty"`
-	Video    string    `json:"video,omitempty"`
-	ShowTime string    `json:"show_time,omitempty"`
-	Comments []Comment `json:"comments,omitempty"`
-	Likes    []string  `json:"likes"`
-}
+func getRandomReply(count int) (resp map[string]string, err error) {
+	us, err := getRandomUsers(count)
+	if err != nil {
+		return
+	}
 
-type User struct {
-	ID        int64  `json:"id"`
-	AvatarUrl string `json:"avatarUrl,omitempty"`
-	NickName  string `json:"nickname,omitempty"`
-}
+	replies := getAllReply()
+	if len(replies) <= 0 {
+		return
+	}
 
-type Comment struct {
-	ID       int64  `json:"id"`
-	MemoID   int64  `json:"memoId"`
-	UserName string `json:"username,omitempty"`
-	ReplyTo  string `json:"reply_to,omitempty"`
-	Content  string `json:"content,omitempty"`
+	resp = map[string]string{}
+	for i, u := range us {
+		if i >= len(replies) {
+			i = rand.Intn(len(replies) - 1)
+		}
+		resp[u] = replies[i]
+	}
+
+	return
 }
 
 func main() {
@@ -64,8 +116,82 @@ func main() {
 
 	g.Use(reqresp.Cors())
 
+	g.GET("/backend/v1/gene_reply", func(c *gin.Context) {
+		countStr := c.Query("count")
+		count, _ := strconv.Atoi(countStr)
+
+		replies, err := getRandomReply(count)
+		if err != nil {
+			reqresp.MakeErrMsg(c, err)
+			return
+		}
+
+		type Resp struct {
+			Name    string `json:"name,omitempty"`
+			Content string `json:"content,omitempty"`
+		}
+
+		resp := []Resp{}
+
+		for name, content := range replies {
+			resp = append(resp, Resp{
+				Name:    name,
+				Content: content,
+			})
+		}
+
+		c.JSON(200, resp)
+	})
+
+	g.GET("/backend/v1/gene_likes", func(c *gin.Context) {
+		countStr := c.Query("count")
+		count, _ := strconv.Atoi(countStr)
+
+		resp, err := getRandomUsers(count)
+		if err != nil {
+			reqresp.MakeErrMsg(c, err)
+			return
+		}
+
+		c.JSON(200, resp)
+	})
+
 	g.GET("/backend/v1/profile", func(c *gin.Context) {
 		reqresp.MakeResp(c, getProfile())
+	})
+
+	g.POST("/backend/v1/file/upload", func(c *gin.Context) {
+		// 单文件上传，通过表单名称获取文件
+		file, err := c.FormFile("file")
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		log.Printf("get upload file:size=%v name=%v", utils.GetShowSize(file.Size), file.Filename)
+
+		// 将文件保存到服务器
+		dest := filepath.Join(choreDir, "upload_files", fmt.Sprintf("%v_%v", time.Now().Unix(), file.Filename))
+		id := getFileIDByPath(dest)
+
+		if err := c.SaveUploadedFile(file, dest); err != nil {
+			log.Printf("SaveUploadedFile err:%v dest:%v", err, dest)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		log.Printf("SaveUploadedFile succ. dest:%v id:%v", dest, id)
+		c.JSON(http.StatusOK, map[string]string{"id": id})
+	})
+
+	g.POST("/backend/v1/apply_tmpl", func(c *gin.Context) {
+		req := &ApplyTmplReq{}
+		reqresp.ParseReq(c, req)
+		log.Printf("apply tmpl:%+v", req)
 	})
 
 	g.GET("/backend/v1/file", func(c *gin.Context) {
@@ -79,7 +205,7 @@ func main() {
 
 		filePath := getFilePathByID(id)
 
-		filePath = filepath.Join("/home/xunlei/sync/chore", filePath)
+		filePath = filepath.Join(choreDir, filePath)
 
 		log.Infof("get file:%v", filePath)
 
@@ -256,4 +382,8 @@ func main() {
 
 func getFilePathByID(id string) string {
 	return utils.B64To(id)
+}
+
+func getFileIDByPath(path string) string {
+	return utils.B64(path)
 }

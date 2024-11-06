@@ -227,7 +227,7 @@ export default {
     },
 
     getFile: function(input){
-      return "http://192.168.50.47:8090/backend/v1/file?id=" + input;
+      return "http://192.168.31.5:8090/backend/v1/file?id=" + input;
     },
 
     getImgGridStyle: function(memo){
@@ -365,6 +365,13 @@ input2 {
   max-width: 60%;
   max-height:250px;
   overflow:hidden
+}
+
+div, span {
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+/Edge */
+  user-select: none; /* Standard syntax */
 }
 </style>
 

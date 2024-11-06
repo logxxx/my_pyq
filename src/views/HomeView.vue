@@ -1,6 +1,7 @@
 <template>
   <div>
-    <Index/>
+    <RouterLink to="/">Go to Home</RouterLink>
+    <RouterLink to="/mgr">Go to Mgr</RouterLink>
   </div>
 </template>
 

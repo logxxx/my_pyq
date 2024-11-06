@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/logxxx/utils"
 	"github.com/logxxx/utils/fileutil"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -10,10 +11,12 @@ import (
 var (
 	memosTmpl = &Tmpl{}
 	profile   = &TmplProfile{}
+
+	choreDir = "C:\\Users\\Administrator\\Desktop\\wx_source\\chore"
 )
 
 func init() {
-	err := fileutil.ReadYamlFile("/home/xunlei/sync/chore/memos.yml", memosTmpl)
+	err := fileutil.ReadYamlFile(filepath.Join(choreDir, "memos.yml"), memosTmpl)
 	if err != nil {
 		panic(err)
 	}
@@ -25,44 +28,18 @@ func init() {
 	go func() {
 		for {
 			time.Sleep(3 * time.Second)
-			fileutil.ReadYamlFile("/home/xunlei/sync/chore/memos.yml", memosTmpl)
+			fileutil.ReadYamlFile(filepath.Join(choreDir, "memos.yml"), memosTmpl)
 			if len(memosTmpl.Data) <= 0 {
 				panic("no memosTmpl")
 			}
 		}
 	}()
 
-	fileutil.ReadYamlFile("/home/xunlei/sync/chore/profile.yml", profile)
+	fileutil.ReadYamlFile(filepath.Join(choreDir, "profile.yml"), profile)
 
 	if profile.Name == "" {
 		panic("no profile Tmpl")
 	}
-}
-
-type Tmpl struct {
-	Data []TmplData `yaml:"data"`
-}
-type TmplComment struct {
-	Name    string `yaml:"name"`
-	Content string `yaml:"content"`
-	ReplyTo string `yaml:"reply_to"`
-}
-type TmplData struct {
-	Name     string        `yaml:"name"`
-	Avatar   string        `yaml:"avatar"`
-	Pics     []string      `yaml:"pics"`
-	Video    string        `yaml:"video"`
-	Content  string        `yaml:"content"`
-	Place    string        `yaml:"place"`
-	ShowTime string        `yaml:"show_time"`
-	Likes    []string      `yaml:"likes"`
-	Comment  []TmplComment `yaml:"comments"`
-}
-
-type TmplProfile struct {
-	Name   string `yaml:"name"`
-	Avatar string `yaml:"avatar"`
-	Cover  string `yaml:"cover"`
 }
 
 func getProfile() (resp Profile) {

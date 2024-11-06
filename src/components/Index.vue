@@ -57,18 +57,18 @@ export default {
   methods: {
 
     getProfile: function() {
-      axios.get('http://192.168.50.47:8090/backend/v1/profile').then(resp => {
+      axios.get('http://192.168.31.5:8090/backend/v1/profile').then(resp => {
         this.profile = resp.data
         console.log("getProfile resp:", this.profile)
       })
     },
 
     getImgUrl: function(input){
-      return "http://192.168.50.47:8090/backend/v1/file?id=" + input;
+      return "http://192.168.31.5:8090/backend/v1/file?id=" + input;
     },
 
     getMemos: function() {
-      axios.get('http://192.168.50.47:8090/backend/v1/memos').then(resp => {
+      axios.get('http://192.168.31.5:8090/backend/v1/memos').then(resp => {
         resp.data.memos.forEach(v=>{
           this.memos.push(v)
         })
